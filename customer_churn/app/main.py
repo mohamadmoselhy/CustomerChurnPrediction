@@ -4,6 +4,14 @@ from pathlib import Path
 import logging
 import os
 
+# Set page configuration
+st.set_page_config(
+    page_title="Customer Churn Prediction",
+    page_icon="assets/logo.png",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Add the project root to Python path
 root_dir = Path(__file__).parent.parent.parent
 sys.path.append(str(root_dir))
