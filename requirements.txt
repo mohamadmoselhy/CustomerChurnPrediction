@@ -9,4 +9,5 @@ joblib>=1.1.0
 pathlib>=1.0.1
 imbalanced-learn==0.10.1
 pyyaml>=5.4.1
-pytest==7.3.1 
+pytest==7.3.1
+xgboost>=2.0.0 
