@@ -102,7 +102,7 @@ def run_dashboard_page():
     
     # Load model artifacts
     try:
-        model_dir = Path("models")
+        model_dir = Path("models/trained")
         model, scaler, feature_names = load_model_artifacts(model_dir)
         
         # Prepare data for prediction
