@@ -7,6 +7,9 @@ from plotly.subplots import make_subplots
 from pathlib import Path
 import pickle
 from src.utils.data_utils import load_real_data
+from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, confusion_matrix, roc_curve
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def load_model_artifacts(model_dir):
     """Load model and related artifacts"""
@@ -41,6 +44,52 @@ def create_sample_data(n_samples=1000):
     
     return data
 
+def display_model_metrics(y_true, y_pred, y_prob):
+    """Display model metrics in a visually appealing way"""
+    # Calculate metrics
+    precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average='binary')
+    roc_auc = roc_auc_score(y_true, y_prob)
+    
+    # Create metrics DataFrame
+    metrics_df = pd.DataFrame({
+        'Metric': ['Precision', 'Recall', 'F1 Score', 'ROC AUC'],
+        'Value': [precision, recall, f1, roc_auc]
+    })
+    
+    # Display metrics in columns
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Precision", f"{precision:.3f}")
+    with col2:
+        st.metric("Recall", f"{recall:.3f}")
+    with col3:
+        st.metric("F1 Score", f"{f1:.3f}")
+    with col4:
+        st.metric("ROC AUC", f"{roc_auc:.3f}")
+    
+    # Create confusion matrix
+    st.subheader("Confusion Matrix")
+    cm = confusion_matrix(y_true, y_pred)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+    ax.set_xlabel('Predicted')
+    ax.set_ylabel('Actual')
+    st.pyplot(fig)
+    
+    # ROC Curve
+    st.subheader("ROC Curve")
+    fpr, tpr, _ = roc_curve(y_true, y_prob)
+    roc_fig = go.Figure()
+    roc_fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name='ROC Curve'))
+    roc_fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name='Random', line=dict(dash='dash')))
+    roc_fig.update_layout(
+        title='ROC Curve',
+        xaxis_title='False Positive Rate',
+        yaxis_title='True Positive Rate'
+    )
+    st.plotly_chart(roc_fig)
+
 def run_dashboard_page():
     st.title("Customer Churn Dashboard")
     
@@ -48,9 +97,31 @@ def run_dashboard_page():
     data = load_real_data()
     
     if data is None:
-        st.error("Failed to load the dataset. Please check the file path.")
+        st.warning("No data available. Please ensure the data file exists.")
         return
+    
+    # Load model artifacts
+    try:
+        model_dir = Path("models")
+        model, scaler, feature_names = load_model_artifacts(model_dir)
         
+        # Prepare data for prediction
+        X = data[feature_names]
+        X_scaled = scaler.transform(X)
+        y_true = data['Exited']
+        
+        # Get predictions
+        y_pred = model.predict(X_scaled)
+        y_prob = model.predict_proba(X_scaled)[:, 1]
+        
+        # Display metrics
+        st.header("Model Performance Metrics")
+        display_model_metrics(y_true, y_pred, y_prob)
+        
+    except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return
+    
     # Handle missing values in Geography
     data['Geography'] = data['Geography'].fillna('Unknown')
     
