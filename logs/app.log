@@ -160,3 +160,14 @@
 2025-04-30 00:35:11,581 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
 2025-04-30 00:35:31,239 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
 2025-04-30 00:43:07,869 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:46:49,572 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:46:50,979 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:49:12,342 - src.utils.model_utils - INFO - Saved metrics to models/trained/model_metrics.txt
+2025-04-30 00:49:31,476 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:49:32,963 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:50:11,311 - src.utils.model_utils - INFO - Saved metrics to models/trained/model_metrics.txt
+2025-04-30 00:52:18,997 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:52:20,419 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:52:25,860 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:52:26,647 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained
+2025-04-30 00:52:30,857 - src.utils.model_utils - INFO - Loaded model artifacts from models\trained

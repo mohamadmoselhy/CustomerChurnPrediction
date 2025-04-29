@@ -86,114 +86,76 @@ def encode_input_data(df, scaler, feature_names):
     return df_scaled
 
 def run_prediction_page():
-    st.title('Customer Churn Prediction')
+    st.title("Customer Churn Prediction")
     
-    # Check if model exists, if not, train and save it
-    model_dir = Path('models/trained')
-    if not model_dir.exists() or not (model_dir / 'model_ensemble.pkl').exists():
-        st.warning("Model not found. Training new model...")
-        try:
-            train_and_save_model()
-            st.success("Model trained and saved successfully!")
-        except Exception as e:
-            st.error(f"Error training model: {str(e)}")
-            return
-    
+    # Load model artifacts
     try:
-        model, scaler, feature_names = load_model_artifacts('models/trained')
+        model_dir = Path("models/trained")
+        model, scaler, feature_names = load_model_artifacts(model_dir)
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         return
-
-    st.write('Enter customer information to predict churn probability')
     
+    # Create form for user input
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
         
         with col1:
-            credit_score = st.number_input('Credit Score', 300, 900, 650)
-            age = st.number_input('Age', 18, 100, 35)
-            tenure = st.number_input('Tenure (years)', 0, 50, 5)
-            balance = st.number_input('Balance', 0.0, 250000.0, 50000.0)
-            products = st.number_input('Number of Products', 1, 4, 1)
+            credit_score = st.number_input("Credit Score", min_value=300, max_value=900, value=650)
+            geography = st.selectbox("Geography", ["France", "Spain", "Germany"])
+            gender = st.selectbox("Gender", ["Male", "Female"])
+            age = st.number_input("Age", min_value=18, max_value=100, value=35)
+            tenure = st.number_input("Tenure (years)", min_value=0, max_value=50, value=5)
         
         with col2:
-            geography = st.selectbox('Geography', ['France', 'Spain', 'Germany'])
-            gender = st.selectbox('Gender', ['Male', 'Female'])
-            has_card = st.selectbox('Has Credit Card', ['Yes', 'No'])
-            is_active = st.selectbox('Is Active Member', ['Yes', 'No'])
-            salary = st.number_input('Estimated Salary', 0.0, 500000.0, 50000.0)
+            balance = st.number_input("Balance", min_value=0.0, max_value=250000.0, value=0.0)
+            num_products = st.number_input("Number of Products", min_value=1, max_value=4, value=1)
+            has_credit_card = st.selectbox("Has Credit Card", ["Yes", "No"])
+            is_active_member = st.selectbox("Is Active Member", ["Yes", "No"])
+            estimated_salary = st.number_input("Estimated Salary", min_value=0.0, max_value=500000.0, value=50000.0)
         
-        submitted = st.form_submit_button("Predict Churn")
+        submit_button = st.form_submit_button("Predict")
+    
+    if submit_button:
+        # Prepare input data
+        input_data = pd.DataFrame({
+            'CreditScore': [credit_score],
+            'Geography': [geography],
+            'Gender': [gender],
+            'Age': [age],
+            'Tenure': [tenure],
+            'Balance': [balance],
+            'NumOfProducts': [num_products],
+            'HasCrCard': [1 if has_credit_card == "Yes" else 0],
+            'IsActiveMember': [1 if is_active_member == "Yes" else 0],
+            'EstimatedSalary': [estimated_salary]
+        })
         
-        if submitted:
-            try:
-                # Create input DataFrame
-                input_data = {
-                    'CreditScore': credit_score,
-                    'Geography': geography,
-                    'Gender': gender,
-                    'Age': age,
-                    'Tenure': tenure,
-                    'Balance': balance,
-                    'NumOfProducts': products,
-                    'HasCrCard': 1 if has_card == 'Yes' else 0,
-                    'IsActiveMember': 1 if is_active == 'Yes' else 0,
-                    'EstimatedSalary': salary
-                }
-                
-                # Create DataFrame
-                df = pd.DataFrame([input_data])
-                
-                # Encode and transform input data
-                df_processed = encode_input_data(df, scaler, feature_names)
-                
-                # Make prediction
-                probability = model.predict_proba(df_processed)[0, 1]
-                
-                # Display results
-                st.subheader('Prediction Results')
-                
-                # Create color-coded probability gauge
-                prob_color = 'red' if probability > 0.5 else 'green'
-                st.markdown(f"""
-                <div style="text-align: center;">
-                    <h3 style="color: {prob_color};">
-                        Churn Probability: {probability:.1%}
-                    </h3>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Display interpretation
-                if probability > 0.5:
-                    st.error('⚠️ High Risk of Churn')
-                    st.write('This customer is likely to churn. Consider immediate retention actions.')
-                    
-                    # Add recommendations for high-risk customers
-                    st.subheader("Recommended Actions:")
-                    st.write("1. Contact customer for feedback")
-                    st.write("2. Offer personalized retention package")
-                    st.write("3. Review pricing and product fit")
-                else:
-                    st.success('✅ Low Risk of Churn')
-                    st.write('This customer is likely to stay. Consider growth opportunities.')
-                    
-                    # Add recommendations for low-risk customers
-                    st.subheader("Growth Opportunities:")
-                    st.write("1. Cross-selling opportunities")
-                    st.write("2. Loyalty program enrollment")
-                    st.write("3. Service upgrades")
-                
-                # Display feature importance
-                st.subheader("Key Factors Influencing Prediction")
-                feature_importance = pd.DataFrame({
-                    'Feature': df_processed.columns,
-                    'Value': df_processed.iloc[0].values
-                })
-                st.dataframe(feature_importance.sort_values('Value', ascending=False))
-                
-            except Exception as e:
-                st.error(f"Error making prediction: {str(e)}")
-                st.write("Debug information:")
-                st.write(f"Feature names expected: {feature_names}")
-                st.write(f"Input data columns: {df.columns.tolist()}") 
+        # Create dummy variables
+        input_encoded = pd.get_dummies(input_data, columns=['Geography', 'Gender'])
+        
+        # Ensure all necessary columns exist
+        for feature in feature_names:
+            if feature not in input_encoded.columns:
+                input_encoded[feature] = 0
+        
+        # Select only the features used during training
+        X = input_encoded[feature_names]
+        
+        # Scale the features
+        X_scaled = scaler.transform(X)
+        
+        # Make prediction
+        prediction = model.predict(X_scaled)[0]
+        probability = model.predict_proba(X_scaled)[0][1]
+        
+        # Display prediction
+        st.header("Prediction Results")
+        
+        if prediction == 1:
+            st.error(f"⚠️ High risk of churn! (Probability: {probability:.1%})")
+        else:
+            st.success(f"✅ Low risk of churn (Probability: {probability:.1%})")
+
+if __name__ == "__main__":
+    run_prediction_page() 

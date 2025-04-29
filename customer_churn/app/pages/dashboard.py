@@ -7,6 +7,7 @@ from plotly.subplots import make_subplots
 from pathlib import Path
 import pickle
 from src.utils.data_utils import load_real_data
+from src.utils.model_utils import evaluate_model
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, confusion_matrix, roc_curve
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -74,9 +75,6 @@ def display_model_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.nda
         plt.title('ROC Curve')
         plt.legend()
         st.pyplot(plt)
-    
-    # Add note about metrics
-    st.info("Model performance metrics have been saved to 'models/trained/model_metrics.txt'")
 
 def run_dashboard_page():
     st.title("Customer Churn Dashboard")
@@ -112,10 +110,6 @@ def run_dashboard_page():
         # Get predictions
         y_pred = model.predict(X_scaled)
         y_prob = model.predict_proba(X_scaled)[:, 1]
-        
-        # Display metrics
-        st.header("Model Performance Metrics")
-        display_model_metrics(y_true, y_pred, y_prob)
         
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")

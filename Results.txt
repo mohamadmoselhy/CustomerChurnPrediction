@@ -1,0 +1,6 @@
+Model Performance Metrics
+========================
+Precision: 0.850
+Recall: 0.750
+F1 Score: 0.797
+ROC AUC: 0.920
