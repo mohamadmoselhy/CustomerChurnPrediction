@@ -106,7 +106,18 @@ def run_dashboard_page():
         model, scaler, feature_names = load_model_artifacts(model_dir)
         
         # Prepare data for prediction
-        X = data[feature_names]
+        # First, create dummy variables for categorical features
+        data_encoded = pd.get_dummies(data, columns=['Geography', 'Gender'])
+        
+        # Ensure all necessary columns exist (add missing ones with zeros if needed)
+        for feature in feature_names:
+            if feature not in data_encoded.columns:
+                data_encoded[feature] = 0
+                
+        # Select only the features used during training
+        X = data_encoded[feature_names]
+        
+        # Scale the features
         X_scaled = scaler.transform(X)
         y_true = data['Exited']
         
