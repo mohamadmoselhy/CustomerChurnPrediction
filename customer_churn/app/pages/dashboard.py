@@ -44,51 +44,39 @@ def create_sample_data(n_samples=1000):
     
     return data
 
-def display_model_metrics(y_true, y_pred, y_prob):
-    """Display model metrics in a visually appealing way"""
+def display_model_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> None:
+    """Display model performance metrics and visualizations"""
     # Calculate metrics
-    precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average='binary')
-    roc_auc = roc_auc_score(y_true, y_prob)
+    metrics = evaluate_model(y_true, y_pred, y_prob)
     
-    # Create metrics DataFrame
-    metrics_df = pd.DataFrame({
-        'Metric': ['Precision', 'Recall', 'F1 Score', 'ROC AUC'],
-        'Value': [precision, recall, f1, roc_auc]
-    })
+    # Create two columns for visualizations
+    col1, col2 = st.columns(2)
     
-    # Display metrics in columns
-    col1, col2, col3, col4 = st.columns(4)
-    
+    # Confusion Matrix
     with col1:
-        st.metric("Precision", f"{precision:.3f}")
-    with col2:
-        st.metric("Recall", f"{recall:.3f}")
-    with col3:
-        st.metric("F1 Score", f"{f1:.3f}")
-    with col4:
-        st.metric("ROC AUC", f"{roc_auc:.3f}")
-    
-    # Create confusion matrix
-    st.subheader("Confusion Matrix")
-    cm = confusion_matrix(y_true, y_pred)
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
-    ax.set_xlabel('Predicted')
-    ax.set_ylabel('Actual')
-    st.pyplot(fig)
+        st.subheader("Confusion Matrix")
+        cm = confusion_matrix(y_true, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+        st.pyplot(plt)
     
     # ROC Curve
-    st.subheader("ROC Curve")
-    fpr, tpr, _ = roc_curve(y_true, y_prob)
-    roc_fig = go.Figure()
-    roc_fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name='ROC Curve'))
-    roc_fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name='Random', line=dict(dash='dash')))
-    roc_fig.update_layout(
-        title='ROC Curve',
-        xaxis_title='False Positive Rate',
-        yaxis_title='True Positive Rate'
-    )
-    st.plotly_chart(roc_fig)
+    with col2:
+        st.subheader("ROC Curve")
+        fpr, tpr, _ = roc_curve(y_true, y_prob)
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {metrics["roc_auc"]:.3f})')
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('ROC Curve')
+        plt.legend()
+        st.pyplot(plt)
+    
+    # Add note about metrics
+    st.info("Model performance metrics have been saved to 'models/trained/model_metrics.txt'")
 
 def run_dashboard_page():
     st.title("Customer Churn Dashboard")

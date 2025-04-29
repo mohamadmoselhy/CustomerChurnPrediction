@@ -50,17 +50,32 @@ def load_model_artifacts(model_dir: str) -> Tuple[Any, Any, list]:
         logger.error(f"Error loading model artifacts: {str(e)}")
         raise
 
+def save_metrics_to_file(metrics: dict, output_file: str) -> None:
+    """Save model metrics to a text file"""
+    with open(output_file, 'w') as f:
+        f.write("Model Performance Metrics\n")
+        f.write("=======================\n\n")
+        for metric, value in metrics.items():
+            f.write(f"{metric.replace('_', ' ').title()}: {value:.3f}\n")
+    
+    logger.info(f"Saved metrics to {output_file}")
+
 def evaluate_model(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> dict:
     """Calculate model performance metrics"""
     precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average='weighted')
     roc_auc = roc_auc_score(y_true, y_prob)
     
-    return {
+    metrics = {
         'precision': precision,
         'recall': recall,
         'f1_score': f1,
         'roc_auc': roc_auc
     }
+    
+    # Save metrics to file
+    save_metrics_to_file(metrics, 'models/trained/model_metrics.txt')
+    
+    return metrics
 
 def load_data():
     """Load the dataset from CSV file"""
