@@ -20,11 +20,11 @@ setup(
     ],
     python_requires=">=3.8",
     author="Your Name",
-    author_email="your.email@example.com",
+    author_email="Mohamed_Moselhy@outlook.com",
     description="Customer Churn Prediction System",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/customer-churn",
+    url="https://github.com/mohamadmoselhy/CustomerChurnPrediction",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
