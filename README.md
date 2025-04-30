@@ -22,8 +22,8 @@ I am Mohamed Ibrahim Moselhy, a Senior RPA Developer with a strong background in
 My mission is to innovate in automation by delivering reliable, scalable RPA and AI solutions. I strive to be a recognized expert in process automation and data science while contributing to the community through mentorship and open knowledge sharing.
 
 ## 📫 Connect with Me
-- **LinkedIn**: [[linkedin.com/in/mohamedmoselhy](https://linkedin.com/in/mohamedmoselhy](https://www.linkedin.com/in/mohamed-ibrahim96/))
-- **GitHub**: [[github.com/MohamedMoselhy](https://github.com/MohamedMoselhy](https://github.com/mohamadmoselhy))
+- **LinkedIn**: [(https://www.linkedin.com/in/mohamed-ibrahim96/))
+- **GitHub**: [(https://github.com/mohamadmoselhy))
 - **Email**: mohamed_moselhy@outlook.com
 
 ---
